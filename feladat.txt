@@ -1,0 +1,26 @@
+Valósítsd meg a Hill Climbing algoritmust valamely heurisztikus javítással,
+pl.: backtracking, random walk, szimulalt hutes, tabu search, gradiens hegymászás, vagy egyéb más algoritmus.
+
+Készíts diát, amiben bemutatod magát az algoritmust, valamint a hozzá választott javítást. 
+
+A diában (és előadás során) mutass be legalább 10 lépést,
+hogy az algoritmusod hogyan dönt egy adott táblában.
+
+Generáltass le chatgpt-vel 10 olyan pályát, ami "hegyszerűen" van elkészítve,
+tehát nem random számok vannak, hanem megjelenítve valami domborzatszerű alakot ad.
+
+Valósítsd meg pythonban valamely megjelenítő könyvtár segítségével (pl.: pyplot),
+hogy a pályáidnak legyen 3d-s szimulációja. Ezzel ellenőrizd, "hegyszerű"-e a generált pályád.
+Ezt képként mentsd ki és mellékeld a dia mellé. A pályáid 30x30-asak legyenek. Mind a 10 pályát is mellékeld a dia mellé.
+
+5 pályán fejleszd az algoritmust, a maradék 5 pályán abszolút ne teszteld,
+csak a legvégén, ha készen vagy az algoritmussal.
+
+Minden futtatáskor random pozícióból induljon a hegymászás.
+
+Minden futtatás során a program tudja előre a globális maximumokat.
+A kiértékelés történjen az alapján, hány lépésből találja meg az algoritmus az összes globális maximumot.
+
+A végén minden tesztpályára futtass 200 szimulációt.
+A kapott szám minden pályára az összes globális maximum megtalálásáig megtett lépés.
+Ezeknek a számoknak az átlaga a pontszámod.

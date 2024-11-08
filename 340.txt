@@ -1,0 +1,18 @@
+2 db Globális maximum 134 lépésbõl seed: 340
+2 db Globális maximum 58 lépésbõl seed: 340
+Average step_count: 96.00
+2 db Globális maximum 11 lépésbõl seed: 340
+2 db Globális maximum 86 lépésbõl seed: 340
+Átlag : 57.80
+2 db Globális maximum 26 lépésbõl seed: 340
+Átlag : 45.00
+2 db Globális maximum 5 lépésbõl seed: 340
+Átlag : 35.56
+2 db Globális maximum 20 lépésbõl seed: 340
+Átlag : 30.91
+2 db Globális maximum 89 lépésbõl seed: 340
+Átlag : 33.00
+2 db Globális maximum 121 lépésbõl seed: 340
+Átlag : 36.67
+2 db Globális maximum 30 lépésbõl seed: 340
+Átlag : 34.12

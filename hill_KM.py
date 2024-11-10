@@ -3,27 +3,25 @@ import matplotlib.pyplot as plt
 import random
 import time
 
-# Initialize global variables
 legmagassabbpont = 0  
 count_of_max_peaks = 0  
-count_of_found_max_peaks = 0
-given_seed = 340
-sim_delay_sec = 0.05
+given_seed = 7231
+sim_delay_sec = 0
+number_of_runs = 4  
+max_steps_per_run = 900  
 
 rXStart = np.random.randint(0, 30)
 rYStart = np.random.randint(0, 30)
 
-# Function to set the seed for reproducibility
 def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-# Generate a random integer between min and max
 def RandomSzamGeneralas(min_val, max_val):
     return random.randint(min_val, max_val)
 
-# Terrain generation with integer-based Gaussian peaks and valleys
-def terrain_function(x, y):
+# Gaussy csúcsok
+def terkep_gen(x, y):
     num_peaks = RandomSzamGeneralas(10, 30)
     terrain = np.zeros_like(x, dtype=int) + 8
 
@@ -43,26 +41,26 @@ def terrain_function(x, y):
 
     return terrain
 
-def find_highest_peak(Z):
+def max_csucsok(Z):
     global legmagassabbpont
     legmagassabbpont = np.max(Z)
     return legmagassabbpont
 
-
-def count_max_peaks(Z, max_height):
+def max_csucs_db(Z, max_height):
     return np.sum(Z == max_height)
 
-# Initialize the plot
-def init_plot(X, Y, Z, seed):
+# Palya elkeszítése
+def palya_elkeszit(X, Y, Z, seed):
     fig = plt.figure(figsize=(8, 6))
     ax3d = fig.add_subplot(111, projection='3d')
     ax3d.plot_surface(X, Y, Z, cmap='viridis', alpha=0.7)
     ax3d.set_xlabel("X")
     ax3d.set_ylabel("Y")
-    ax3d.set_zlabel("Terrain height")
-    ax3d.set_title(f"Generated 3D Terrain with Peaks and Valleys (Seed={seed})")
+    ax3d.set_zlabel("Magasság")
+    ax3d.set_title(f"Generált domborzat (Seed={seed})")
     return fig, ax3d
 
+# Térkép frissít
 def plot_terrain(ax3d, Z, dot_coords=None):
     for collection in ax3d.collections:
         collection.remove()
@@ -72,34 +70,27 @@ def plot_terrain(ax3d, Z, dot_coords=None):
         x_idx = (np.abs(x_vals - x)).argmin()
         y_idx = (np.abs(y_vals - y)).argmin()
         z = Z[y_idx, x_idx]
-        ax3d.scatter(x, y, z, color='red', s=100, label="Red Dot")
+        ax3d.scatter(x, y, z, color='red', s=100, label="Hegymászónk")
         ax3d.legend()
     plt.draw()
     plt.pause(0.1)
 
+# Pötty mozgatása
 def move_red_dot():
-
-    current_x = rXStart
-    current_y = rYStart
-
-    step_count = 0
-    found_peaks = set()
-
-    #Latogatott mezök mátrix
-    visited = np.zeros((30, 30), dtype=bool)
-
     global count_of_max_peaks
-    
+    found_peaks = set()
+    visited = np.zeros((30, 30), dtype=bool)
+    step_count = 0
     count_of_found_max_peaks = 0
-
-    for row in Z:
-        print(" ".join(map(str, row)))
+   
+    current_x = rXStart 
+    current_y = rYStart
 
     while count_of_max_peaks != count_of_found_max_peaks:
         visited[current_y, current_x] = True
 
         current_height = Z[current_y, current_x]
-        neighbors = [] 
+        neighbors = []
         if current_y < 29 and not visited[current_y + 1, current_x]:
             neighbors.append(('up', current_x, current_y + 1, Z[current_y + 1, current_x]))
         if current_y > 0 and not visited[current_y - 1, current_x]:
@@ -109,18 +100,13 @@ def move_red_dot():
         if current_x < 29 and not visited[current_y, current_x + 1]:
             neighbors.append(('right', current_x + 1, current_y, Z[current_y, current_x + 1]))
 
-
         if neighbors:
-            best_move = neighbors[0]
-            for neighbor in neighbors:
-                if neighbor[3] > best_move[3]:
-                    best_move = neighbor
-            direction, new_x, new_y, new_height = best_move
+            best_move = max(neighbors, key=lambda n: n[3])  
+            _, new_x, new_y, new_height = best_move
         else:
             unvisited_cells = np.argwhere(visited == False)
             if len(unvisited_cells) == 0:
-                print("Nincs több mezö")
-                break 
+                break
             new_x, new_y = random.choice(unvisited_cells)
             new_height = Z[new_y, new_x]
 
@@ -131,53 +117,46 @@ def move_red_dot():
             found_peaks.add((current_x, current_y))
             count_of_found_max_peaks += 1
 
-        print(f"Lépés {step_count}. Helyzet: ({current_x}, {current_y}), Magasság: {new_height}, Globális Maximum: {legmagassabbpont}, Globális maximum szám: {count_of_max_peaks}, Megtalált globális maximumok száma: {count_of_found_max_peaks}")
         plot_terrain(ax3d, Z, dot_coords=(current_x, current_y))
         time.sleep(sim_delay_sec)
 
-        if count_of_max_peaks == count_of_found_max_peaks:
-            print(f"Minden csúcs megtalálva {step_count} lépésből.")
-            rekordLetrehoz(f"{count_of_max_peaks} db Globális maximum {step_count} lépésből seed: {given_seed}",f"{given_seed}.txt")
+        if step_count > max_steps_per_run:            
             break
 
-def rekordLetrehoz(text, filename):
-    try:
-        step_count = int(text.split(' lépésből ')[0].split()[-1])
-        
-        with open(filename, 'a') as file:
-            file.write(text + '\n') 
+        if count_of_max_peaks == count_of_found_max_peaks:
+            break
 
-        with open(filename, 'r') as file:
-            lines = file.readlines()
+    return step_count
 
-        total_step_count = 0
-        for line in lines:
-            try:
-                step_count_value = int(line.split(' lépésből ')[0].split()[-1])
-                total_step_count += step_count_value
-            except ValueError:
-                pass
-
-        average_step_count = total_step_count / len(lines) if len(lines) > 0 else 0
-
-        # Átlag
-        with open(filename, 'a') as file:
-            file.write(f"Átlag : {average_step_count:.2f}\n")
-
-    except Exception as e:
-        print()
-
-# Seed beállítása
 seed = given_seed
 set_seed(seed)
 
 x_vals = np.linspace(0, 30, 30)
 y_vals = np.linspace(0, 30, 30)
 X, Y = np.meshgrid(x_vals, y_vals)
-Z = terrain_function(X, Y)
+Z = terkep_gen(X, Y)
 
-legmagassabbpont = find_highest_peak(Z)
-count_of_max_peaks = count_max_peaks(Z, legmagassabbpont)
+print("Magasság mátrix:")
+for row in Z:
+    print(" ".join(map(str, row)))
 
-fig, ax3d = init_plot(X, Y, Z, seed)
-move_red_dot()
+legmagassabbpont = max_csucsok(Z)
+count_of_max_peaks = max_csucs_db(Z, legmagassabbpont)
+
+fig, ax3d = palya_elkeszit(X, Y, Z, seed)
+
+total_step_counts = []
+
+for run in range(number_of_runs):
+    print(f"\nSzimuláció futtatása {run + 1}/{number_of_runs}")
+
+    # Reset mindent
+    rXStart = np.random.randint(0, 30)
+    rYStart = np.random.randint(0, 30)
+    steps = move_red_dot()
+    total_step_counts.append(steps)
+    print(f"Szimuláció {run + 1}/{number_of_runs} lefutott {steps} lépésből")
+
+# Átlag számolás
+average_steps = sum(total_step_counts) / len(total_step_counts) if total_step_counts else 0
+print(f"\nSzimuláció vége. lépészám:  {number_of_runs} átlag: {average_steps:.2f}")
